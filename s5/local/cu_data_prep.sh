@@ -5,19 +5,23 @@
 
 # So that the sorting is correct
 set -e
-
-# Define the data directory paths
-DATA_DIR=/srv/scratch/z5173707/Dataset/CU_2/corpus
+. ./path.sh
+[ -z $cu_data_dir ] && ( echo 'Please Define cu_data_dir var in path.sh' && exit )
 
 # Define current directory
 ROOT_DIR=$(pwd)
 
 # Define local, local output and data output
-LOCAL=local	# This directory should already exist. It is the directory that this script is in.
 UTILS_DIR=local/cu_utils
+
 mkdir -p $UTILS_DIR/tmp
+
 DATA_OUT=data
+
 mkdir -p $DATA_OUT
+
+#Add path to allinfo.txt
+cat $UTILS_DIR/allinfo.txt | sed "s,PATH-TO-DATA,$cu_data_dir,g" > $UTILS_DIR/tmp/allinfo.txt
 
 # List all the available audio and transcription files
 echo "Listing all the available audio and transcription files..."
@@ -42,7 +46,7 @@ echo "Splitting the data into training, development and test sets..."
 
 # Create wav.scp and utt2spk and prep files for text
 echo "Creating wav.scp, utt2spk and preparing to create text..."
-$UTILS_DIR/get_wavscp_utt2spk_text.sh $UTILS_DIR/allinfo.txt 
+$UTILS_DIR/get_wavscp_utt2spk_text.sh $UTILS_DIR/tmp/allinfo.txt 
 
 # Analyse the transcript before creating text
 echo "Analysing transcript content..."
@@ -78,5 +82,8 @@ for data in train_cu test_cu dev_cu; do
     utils/fix_data_dir.sh data/$data
 
 done
+
+#Clean
+rm -r $UTILS_DIR/tmp
 
 echo "SUCCESS: Data preparation done."
