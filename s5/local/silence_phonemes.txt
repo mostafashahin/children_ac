@@ -1,0 +1,6 @@
+noise
+hes
+unk
+unk_f
+laughs
+sil
